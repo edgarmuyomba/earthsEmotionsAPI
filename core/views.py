@@ -8,6 +8,7 @@ from .serializers import ArticleSerializer
 import re
 from rest_framework import status
 
+DATEFORMAT="%Y-%m-%d&%H:%M:%S"
 
 class PolarityNow(APIView):
     def get(self, request):
@@ -34,7 +35,7 @@ class PolarityOnThisDay(APIView):
                 "error": "Invalid date format"
             }, status=status.HTTP_400_BAD_REQUEST)
         else:
-            date_query = dt.strptime(date, "%Y-%m-%d&%H:%M:%S")
+            date_query = dt.strptime(date, DATEFORMAT)
             seven_days_ago = date_query - timedelta(days=7)
             articles = Article.objects.filter(
                 datetime__range=[seven_days_ago, date_query])
@@ -48,3 +49,13 @@ class PolarityOnThisDay(APIView):
                 'top_articles': top_serializer.data,
                 'bottom_articles': bottom_serializer.data
             })
+
+class PolarityTrends(APIView):
+    def get(self, request):
+        start_date = request.GET.get('start_date', None)
+        end_date = request.GET.get('end_date', None)
+        if not start_date or not end_date:
+            pass
+        else:
+            start_date = dt.strptime(start_date, DATEFORMAT)
+            end_date = dt.strptime(end_date, DATEFORMAT)
